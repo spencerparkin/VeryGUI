@@ -1,0 +1,3 @@
+[submodule "ThirdParty/GAL2D"]
+	path = ThirdParty/GAL2D
+	url = https://github.com/spencerparkin/GAL2D
