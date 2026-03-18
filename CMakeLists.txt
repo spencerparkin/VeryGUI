@@ -7,6 +7,8 @@ project(VeryGUI)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(GAL2D_BACKEND "OpenGL")
+
+add_subdirectory(ThirdParty)
 add_subdirectory(Library)
 add_subdirectory(Test)
-add_subdirectory(ThirdParty)
