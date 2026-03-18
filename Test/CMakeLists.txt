@@ -7,4 +7,4 @@ set(VERY_GUI_TEST_SOURCES
 
 add_executable(VeryGUI_Test WIN32 ${VERY_GUI_TEST_SOURCES})
 
-LinkWithGAL2DBackend(VeryGUI_Test)
+target_link_libraries(VeryGUI_Test PRIVATE VeryGUI)

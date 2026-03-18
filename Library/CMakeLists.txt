@@ -3,11 +3,13 @@
 set(VERY_GUI_SOURCES
 	Source/Window.cpp
 	Source/Window.h
+	Source/DesktopWindow.cpp
+	Source/DesktopWindow.h
 )
 
 add_library(VeryGUI STATIC ${VERY_GUI_SOURCES})
 
-target_link_libraries(VeryGUI PUBLIC GAL2D)
+LinkWithGAL2DBackend(VeryGUI)
 
 target_include_directories(VeryGUI PUBLIC Source)
 
