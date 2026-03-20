@@ -11,13 +11,19 @@ namespace VeryGUI
 	class DesktopWindow : public Window
 	{
 	public:
-		DesktopWindow(const GAL2D::Vector& size);
+		DesktopWindow(const GAL2D::Vector& size, const std::string& backgroundImagePath);
 		virtual ~DesktopWindow();
 
 		bool Run();
 
+		virtual void Layout() override;
+		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
+
 	protected:
+
 		GAL2D::Vector size;
-		std::shared_ptr<GAL2D::GraphicsInterface> graphics;
+		std::string backgroundImagePath;
+		std::shared_ptr<GAL2D::GraphicsInterface> graphicsInterface;
+		std::shared_ptr<GAL2D::Texture> backgroundTexture;
 	};
 }
