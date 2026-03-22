@@ -5,6 +5,12 @@ set(VERY_GUI_SOURCES
 	Source/Window.h
 	Source/DesktopWindow.cpp
 	Source/DesktopWindow.h
+	Source/TopLevelWindow.cpp
+	Source/TopLevelWindow.h
+	Source/BlankWindow.cpp
+	Source/BlankWindow.h
+	Source/SplitterWindow.cpp
+	Source/SplitterWindow.h
 )
 
 add_library(VeryGUI STATIC ${VERY_GUI_SOURCES})

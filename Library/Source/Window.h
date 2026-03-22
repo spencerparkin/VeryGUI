@@ -10,7 +10,7 @@ namespace VeryGUI
 	/**
 	 * This is the base class for all members of the window hierarchy.
 	 */
-	class Window
+	class Window : public std::enable_shared_from_this<Window>
 	{
 	public:
 		Window();
@@ -18,9 +18,12 @@ namespace VeryGUI
 
 		/**
 		 * Each type of window is responsible for how it lays out its children.
-		 * Some windows exist only to layout their children and don't draw anything.
+		 * (Some windows exist only to layout their children and don't draw anything.)
+		 * Prior to this call, the bounding rectangle of this window should have already
+		 * been decided, and our only purpose here (in this method) is to calculate the
+		 * bounding rectangles of our child windows.
 		 */
-		virtual void Layout();
+		virtual void LayoutChildren();
 
 		/**
 		 * This should be overridden if the window renders anything.  It should draw
@@ -30,7 +33,14 @@ namespace VeryGUI
 		 * just calls draw on the children.  This way we get the painter's algorithm,
 		 * drawing everything back to front.
 		 */
-		virtual void Draw(GAL2D::GraphicsInterface* graphics);
+		virtual void Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont);
+
+		bool AddChildWindow(std::shared_ptr<Window> childWindow);
+		bool RemoveChildWindow(std::shared_ptr<Window> childWindow);
+		bool HasChildWindow(std::shared_ptr<Window> childWindow, int* offset = nullptr) const;
+
+		void SetBoundingRectangle(const GAL2D::Rectangle& boundingRect);
+		const GAL2D::Rectangle& GetBoundingRect() const;
 
 	protected:
 		

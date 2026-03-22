@@ -3,10 +3,11 @@
 
 using namespace VeryGUI;
 
-DesktopWindow::DesktopWindow(const GAL2D::Vector& size, const std::string& backgroundImagePath)
+DesktopWindow::DesktopWindow(const GAL2D::Vector& size, const std::string& backgroundImagePath, const std::string& commonFontPath)
 {
 	this->size = size;
 	this->backgroundImagePath = backgroundImagePath;
+	this->commonFontPath = commonFontPath;
 }
 
 /*virtual*/ DesktopWindow::~DesktopWindow()
@@ -23,20 +24,18 @@ bool DesktopWindow::Run()
 	this->graphicsInterface = GAL2D::CreateGraphicsInterface(&driverInitData);
 
 	if (!this->graphicsInterface->Setup())
-	{
-		MessageBoxA(NULL, "Failed to setup graphcis!", "Error!", MB_OK | MB_ICONERROR);
 		return false;
-	}
 
 	if (this->backgroundImagePath.length() > 0)
 	{
 		this->backgroundTexture = this->graphicsInterface->MakeTexture(this->backgroundImagePath);
 		if (!this->backgroundTexture.get())
-		{
-			MessageBoxA(NULL, "Failed to load background image!", "Error!", MB_OK | MB_ICONERROR);
 			return false;
-		}
 	}
+
+	this->commonFont = this->graphicsInterface->MakeFont(this->commonFontPath);
+	if (!this->commonFont.get())
+		return false;
 
 	while (this->graphicsInterface->HandleEvents())
 	{
@@ -48,10 +47,12 @@ bool DesktopWindow::Run()
 		this->graphicsInterface->renderState.worldRegion.maxCorner.x = screenSize.x;
 		this->graphicsInterface->renderState.worldRegion.maxCorner.y = screenSize.y;
 
-		this->Layout();
+		this->SetBoundingRectangle(graphicsInterface->renderState.worldRegion);
+
+		this->LayoutChildren();
 
 		graphicsInterface->BeginRendering();
-		this->Draw(this->graphicsInterface.get());
+		this->Draw(this->graphicsInterface.get(), this->commonFont.get());
 		graphicsInterface->EndRendering();
 	}
 
@@ -60,15 +61,7 @@ bool DesktopWindow::Run()
 	return true;
 }
 
-/*virtual*/ void DesktopWindow::Layout()
-{
-	this->boundingRect = graphicsInterface->renderState.worldRegion;
-
-	for (std::shared_ptr<Window> window : this->childWindowArray)
-		window->Layout();
-}
-
-/*virtual*/ void DesktopWindow::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ void DesktopWindow::Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont)
 {
 	GAL2D::Vector textureSize = this->backgroundTexture->GetSize();
 	GAL2D::Rectangle backgroundRect = this->boundingRect;
@@ -76,5 +69,5 @@ bool DesktopWindow::Run()
 
 	graphics->RenderRectangle(backgroundRect, GAL2D::Color(0.5, 0.5, 0.5, 1.0), this->backgroundTexture);
 
-	Window::Draw(graphics);
+	Window::Draw(graphics, commonFont);
 }
