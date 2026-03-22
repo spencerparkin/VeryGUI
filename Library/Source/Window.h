@@ -46,8 +46,8 @@ namespace VeryGUI
 		
 		/**
 		 * This is the world boundary of the window.  Calculating this rectangle for
-		 * all windows in the hierarchy is the result of the @ref Layout method.
-		 * The @ref Draw methid is then responsible for rendering with this region.
+		 * all windows in the hierarchy is the result of the @ref LayoutChildren method.
+		 * The @ref Draw method is then responsible for rendering with this region.
 		 */
 		GAL2D::Rectangle boundingRect;
 		
