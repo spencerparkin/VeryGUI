@@ -17,6 +17,7 @@ namespace VeryGUI
 
 		virtual void LayoutChildren() override;
 		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
+		virtual bool HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState) override;
 
 		void SetTitle(const std::string& title);
 		const std::string& GetTitle() const;

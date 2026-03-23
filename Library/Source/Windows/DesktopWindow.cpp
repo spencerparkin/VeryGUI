@@ -35,6 +35,14 @@ bool DesktopWindow::Run()
 			return false;
 	}
 
+	this->graphicsInterface->mouseClickEventHandler = [this](const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState) -> void
+		{
+			std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
+			while (window.get())
+				if (!window->HandleMouseClickEvent(mousePosition, mouseButton, buttonState))
+					window = window->GetParentWindow();
+		};
+
 	while (this->graphicsInterface->HandleEvents())
 	{
 		GAL2D::Vector screenSize;

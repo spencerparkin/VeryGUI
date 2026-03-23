@@ -116,3 +116,15 @@ const std::string& TopLevelWindow::GetTitle() const
 {
 	return this->title;
 }
+
+/*virtual*/ bool TopLevelWindow::HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState)
+{
+	if (this->titleBarRect.ContainsPoint(mousePosition))
+	{
+		// STPTODO: Write this.
+
+		return true;
+	}
+
+	return false;
+}

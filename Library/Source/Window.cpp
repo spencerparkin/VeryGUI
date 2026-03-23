@@ -71,3 +71,41 @@ const GAL2D::Rectangle& Window::GetBoundingRect() const
 {
 	return this->boundingRect;
 }
+
+std::shared_ptr<Window> Window::FindDeepestWindowContainingPoint(const GAL2D::Vector& point)
+{
+	if (!this->boundingRect.ContainsPoint(point))
+		return nullptr;
+	
+	Window* window = this;
+	while (window)
+	{
+		Window* subWindow = nullptr;
+
+		for (std::shared_ptr<Window> childWindow : window->childWindowArray)
+		{
+			if (childWindow->boundingRect.ContainsPoint(point))
+			{
+				subWindow = childWindow.get();
+				break;
+			}
+		}
+
+		if (!subWindow)
+			break;
+
+		window = subWindow;
+	}
+
+	return window->shared_from_this();
+}
+
+std::shared_ptr<Window> Window::GetParentWindow()
+{
+	return this->parentWindowWeakPtr.lock();
+}
+
+/*virtual*/ bool Window::HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState)
+{
+	return false;
+}
