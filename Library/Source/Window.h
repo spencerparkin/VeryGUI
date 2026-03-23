@@ -33,7 +33,7 @@ namespace VeryGUI
 		 * just calls draw on the children.  This way we get the painter's algorithm,
 		 * drawing everything back to front.
 		 */
-		virtual void Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont);
+		virtual void Draw(GAL2D::GraphicsInterface* graphics);
 
 		bool AddChildWindow(std::shared_ptr<Window> childWindow);
 		bool RemoveChildWindow(std::shared_ptr<Window> childWindow);

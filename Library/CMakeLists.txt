@@ -3,14 +3,14 @@
 set(VERY_GUI_SOURCES
 	Source/Window.cpp
 	Source/Window.h
-	Source/DesktopWindow.cpp
-	Source/DesktopWindow.h
-	Source/TopLevelWindow.cpp
-	Source/TopLevelWindow.h
-	Source/BlankWindow.cpp
-	Source/BlankWindow.h
-	Source/SplitterWindow.cpp
-	Source/SplitterWindow.h
+	Source/Windows/DesktopWindow.cpp
+	Source/Windows/DesktopWindow.h
+	Source/Windows/TopLevelWindow.cpp
+	Source/Windows/TopLevelWindow.h
+	Source/Windows/BlankWindow.cpp
+	Source/Windows/BlankWindow.h
+	Source/Windows/SplitterWindow.cpp
+	Source/Windows/SplitterWindow.h
 )
 
 add_library(VeryGUI STATIC ${VERY_GUI_SOURCES})

@@ -1,5 +1,4 @@
-#include "TopLevelWindow.h"
-#include "Graphics/Font.h"
+#include "Windows/TopLevelWindow.h"
 #include <assert.h>
 
 using namespace VeryGUI;
@@ -38,7 +37,7 @@ TopLevelWindow::TopLevelWindow()
 	}
 }
 
-/*virtual*/ void TopLevelWindow::Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont)
+/*virtual*/ void TopLevelWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	BorderRects borderRects;
 	this->CalcBorderRects(borderRects);
@@ -55,11 +54,14 @@ TopLevelWindow::TopLevelWindow()
 
 	graphics->RenderRectangle(this->titleBarRect, GAL2D::Color(0.0, 0.0, 0.0, 1.0));
 
+	if (!this->titleFont.get())
+		this->titleFont = graphics->MakeFont("Fonts\\Roboto_Regular.ttf");
+
 	GAL2D::Rectangle textRect = this->titleBarRect;
 	textRect.ApplyMarginDelta(-2.0);
-	graphics->RenderText(this->title, commonFont->shared_from_this(), textRect, GAL2D::Color(1.0, 1.0, 1.0, 1.0), GAL2D::GraphicsInterface::ALIGN_LEFT);
+	graphics->RenderText(this->title, this->titleFont, textRect, GAL2D::Color(1.0, 1.0, 1.0, 1.0), GAL2D::GraphicsInterface::ALIGN_LEFT);
 
-	Window::Draw(graphics, commonFont);
+	Window::Draw(graphics);
 }
 
 void TopLevelWindow::CalcBorderRects(BorderRects& borderRects)

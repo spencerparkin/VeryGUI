@@ -1,13 +1,13 @@
-#include "DesktopWindow.h"
+#include "Windows/DesktopWindow.h"
 #include "Graphics/Texture.h"
 
 using namespace VeryGUI;
 
-DesktopWindow::DesktopWindow(const GAL2D::Vector& size, const std::string& backgroundImagePath, const std::string& commonFontPath)
+DesktopWindow::DesktopWindow(const GAL2D::Vector& size, const std::filesystem::path& resourceBasePath, const std::filesystem::path& backgroundImagePath)
 {
 	this->size = size;
+	this->resourceBasePath = resourceBasePath;
 	this->backgroundImagePath = backgroundImagePath;
-	this->commonFontPath = commonFontPath;
 }
 
 /*virtual*/ DesktopWindow::~DesktopWindow()
@@ -26,16 +26,14 @@ bool DesktopWindow::Run()
 	if (!this->graphicsInterface->Setup())
 		return false;
 
-	if (this->backgroundImagePath.length() > 0)
+	this->graphicsInterface->SetResourceBasePath(this->resourceBasePath);
+
+	if (!this->backgroundImagePath.empty())
 	{
 		this->backgroundTexture = this->graphicsInterface->MakeTexture(this->backgroundImagePath);
 		if (!this->backgroundTexture.get())
 			return false;
 	}
-
-	this->commonFont = this->graphicsInterface->MakeFont(this->commonFontPath);
-	if (!this->commonFont.get())
-		return false;
 
 	while (this->graphicsInterface->HandleEvents())
 	{
@@ -52,22 +50,28 @@ bool DesktopWindow::Run()
 		this->LayoutChildren();
 
 		graphicsInterface->BeginRendering();
-		this->Draw(this->graphicsInterface.get(), this->commonFont.get());
+		this->Draw(this->graphicsInterface.get());
 		graphicsInterface->EndRendering();
 	}
+
+	this->childWindowArray.clear();
 
 	graphicsInterface->Shutdown();
 
 	return true;
 }
 
-/*virtual*/ void DesktopWindow::Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont)
+/*virtual*/ void DesktopWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
-	GAL2D::Vector textureSize = this->backgroundTexture->GetSize();
 	GAL2D::Rectangle backgroundRect = this->boundingRect;
-	backgroundRect.ExpandToMatchAspectRatio(textureSize.x / textureSize.y);
+
+	if (this->backgroundTexture.get())
+	{
+		GAL2D::Vector textureSize = this->backgroundTexture->GetSize();
+		backgroundRect.ExpandToMatchAspectRatio(textureSize.x / textureSize.y);
+	}
 
 	graphics->RenderRectangle(backgroundRect, GAL2D::Color(0.5, 0.5, 0.5, 1.0), this->backgroundTexture);
 
-	Window::Draw(graphics, commonFont);
+	Window::Draw(graphics);
 }

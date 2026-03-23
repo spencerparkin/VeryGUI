@@ -16,7 +16,7 @@ namespace VeryGUI
 		virtual ~TopLevelWindow();
 
 		virtual void LayoutChildren() override;
-		virtual void Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont) override;
+		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 
 		void SetTitle(const std::string& title);
 		const std::string& GetTitle() const;
@@ -40,6 +40,7 @@ namespace VeryGUI
 		std::string title;
 		GAL2D::Rectangle titleBarRect;
 		GAL2D::Rectangle innerRect;
+		std::shared_ptr<GAL2D::Font> titleFont;
 
 		static double borderMargin;
 		static double titleBarThickness;

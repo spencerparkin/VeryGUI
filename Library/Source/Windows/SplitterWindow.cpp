@@ -1,4 +1,4 @@
-#include "SplitterWindow.h"
+#include "Windows/SplitterWindow.h"
 #include <assert.h>
 
 using namespace VeryGUI;
@@ -21,7 +21,7 @@ SplitterWindow::SplitterWindow(Orientation orientation)
 	// STPTODO: Write this.
 }
 
-/*virtual*/ void SplitterWindow::Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont)
+/*virtual*/ void SplitterWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	// STPTODO: Write this.
 }

@@ -2,6 +2,7 @@
 
 #include "Window.h"
 #include "GAL2DMakeInterface.h"
+#include <filesystem>
 
 namespace VeryGUI
 {
@@ -11,20 +12,19 @@ namespace VeryGUI
 	class DesktopWindow : public Window
 	{
 	public:
-		DesktopWindow(const GAL2D::Vector& size, const std::string& backgroundImagePath, const std::string& commonFontPath);
+		DesktopWindow(const GAL2D::Vector& size, const std::filesystem::path& resourceBasePath, const std::filesystem::path& backgroundImagePath);
 		virtual ~DesktopWindow();
 
 		bool Run();
 
-		virtual void Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont) override;
+		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 
 	protected:
 
 		GAL2D::Vector size;
-		std::string backgroundImagePath;
-		std::string commonFontPath;
+		std::filesystem::path resourceBasePath;
+		std::filesystem::path backgroundImagePath;
 		std::shared_ptr<GAL2D::GraphicsInterface> graphicsInterface;
 		std::shared_ptr<GAL2D::Texture> backgroundTexture;
-		std::shared_ptr<GAL2D::Font> commonFont;
 	};
 }

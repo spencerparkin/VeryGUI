@@ -22,7 +22,7 @@ namespace VeryGUI
 		virtual ~SplitterWindow();
 
 		virtual void LayoutChildren() override;
-		virtual void Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont) override;
+		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 
 	private:
 		Orientation orientation;

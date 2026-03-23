@@ -16,10 +16,10 @@ Window::Window()
 		childWindow->LayoutChildren();
 }
 
-/*virtual*/ void Window::Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont)
+/*virtual*/ void Window::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	for (const std::shared_ptr<Window> childWindow : this->childWindowArray)
-		childWindow->Draw(graphics, commonFont);
+		childWindow->Draw(graphics);
 }
 
 bool Window::AddChildWindow(std::shared_ptr<Window> childWindow)

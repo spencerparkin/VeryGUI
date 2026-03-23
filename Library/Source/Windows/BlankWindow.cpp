@@ -1,4 +1,4 @@
-#include "BlankWindow.h"
+#include "Windows/BlankWindow.h"
 #include <assert.h>
 
 using namespace VeryGUI;
@@ -17,7 +17,7 @@ BlankWindow::BlankWindow(const GAL2D::Color& color)
 	assert(this->childWindowArray.size() == 0 && "Blank windows should not have any children.");
 }
 
-/*virtual*/ void BlankWindow::Draw(GAL2D::GraphicsInterface* graphics, GAL2D::Font* commonFont)
+/*virtual*/ void BlankWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	graphics->RenderRectangle(this->boundingRect, this->color);
 }
