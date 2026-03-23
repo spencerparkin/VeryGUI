@@ -39,8 +39,12 @@ bool DesktopWindow::Run()
 		{
 			std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
 			while (window.get())
+			{
 				if (!window->HandleMouseClickEvent(mousePosition, mouseButton, buttonState))
 					window = window->GetParentWindow();
+				else
+					break;
+			}
 		};
 
 	while (this->graphicsInterface->HandleEvents())
