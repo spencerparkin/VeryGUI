@@ -19,6 +19,14 @@ int WINAPI WinMain(HINSTANCE instanceHandle, HINSTANCE prevInstanceHandle, LPSTR
 
 		auto blankWindow = std::make_shared<VeryGUI::BlankWindow>(GAL2D::Color(0.5, 0.5, 0.5, 1.0));
 		windowA->AddChildWindow(blankWindow);
+
+		auto windowB = std::make_shared<VeryGUI::TopLevelWindow>();
+		windowB->SetBoundingRectangle(GAL2D::Rectangle(600.0, 1100.0, 600.0, 1100.0));
+		windowB->SetTitle("Window B");
+		desktop->AddChildWindow(windowB);
+
+		blankWindow = std::make_shared<VeryGUI::BlankWindow>(GAL2D::Color(0.5, 0.5, 0.5, 1.0));
+		windowB->AddChildWindow(blankWindow);
 	}
 
 	return desktop->Run() ? 0 : -1;
