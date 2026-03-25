@@ -38,19 +38,31 @@ bool DesktopWindow::Run()
 	this->graphicsInterface->mouseClickEventHandler = [this](const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState) -> void
 		{
 			std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
-			while (window.get())
+			if (window.get())
 			{
-				if (!window->HandleMouseClickEvent(mousePosition, mouseButton, buttonState))
-					window = window->GetParentWindow();
-				else
-					break;
+				MouseClickEvent event;
+				event.mousePosition = mousePosition;
+				event.mouseButton = mouseButton;
+				event.buttonState = buttonState;
+
+				window->HandleEvent(EventType::MOUSE_CLICK, &event);
 			}
 		};
 
 	this->graphicsInterface->mouseMotionEventHandler = [this](const GAL2D::Vector& mousePosition) -> void
 		{
-			for (std::shared_ptr<Window> window : this->mouseMotionWindowSet)
-				window->HandleMouseMotionEvent(mousePosition);
+			MouseMotionEvent event;
+			event.mousePosition = mousePosition;
+
+			std::shared_ptr<Window> motionCaptureWindow = this->motionCaptureWindowWeakPtr.lock();
+			if (motionCaptureWindow.get())
+				motionCaptureWindow->HandleEvent(EventType::MOUSE_MOTION, &event);
+			else
+			{
+				std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
+				if (window.get())
+					window->HandleEvent(EventType::MOUSE_MOTION, &event);
+			}
 		};
 
 	while (this->graphicsInterface->HandleEvents())
@@ -94,12 +106,10 @@ bool DesktopWindow::Run()
 	Window::Draw(graphics);
 }
 
-void DesktopWindow::AddMouseMotionWindow(Window* window)
+void DesktopWindow::SetMotionCaptureWindow(Window* window)
 {
-	this->mouseMotionWindowSet.insert(window->shared_from_this());
-}
-
-void DesktopWindow::RemoveMouseMotionWindow(Window* window)
-{
-	this->mouseMotionWindowSet.erase(window->shared_from_this());
+	if (window)
+		this->motionCaptureWindowWeakPtr = window->shared_from_this();
+	else
+		this->motionCaptureWindowWeakPtr.reset();
 }

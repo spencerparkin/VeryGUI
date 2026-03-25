@@ -119,43 +119,56 @@ const std::string& TopLevelWindow::GetTitle() const
 	return this->title;
 }
 
-/*virtual*/ bool TopLevelWindow::HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState)
+/*virtual*/ void TopLevelWindow::HandleEvent(EventType eventType, const void* eventData)
 {
-	if (mouseButton == GAL2D::MouseButton::Left && this->titleBarRect.ContainsPoint(mousePosition))
+	switch (eventType)
 	{
-		std::shared_ptr<DesktopWindow> desktopWindow = std::dynamic_pointer_cast<DesktopWindow>(this->GetRootWindow());
-		if (desktopWindow.get())
+		case EventType::MOUSE_CLICK:
 		{
-			switch (buttonState)
+			auto* event = static_cast<const MouseClickEvent*>(eventData);
+
+			if (event->mouseButton == GAL2D::MouseButton::Left && this->titleBarRect.ContainsPoint(event->mousePosition))
 			{
-				case GAL2D::ButtonState::Down:
+				std::shared_ptr<DesktopWindow> desktopWindow = std::dynamic_pointer_cast<DesktopWindow>(this->GetRootWindow());
+				if (desktopWindow.get())
 				{
-					desktopWindow->AddMouseMotionWindow(this);
-					this->draggingWindow = true;
-					this->dragDeltaMin = mousePosition - this->boundingRect.minCorner;
-					this->dragDeltaMax = mousePosition - this->boundingRect.maxCorner;
-					break;
-				}
-				case GAL2D::ButtonState::Up:
-				{
-					desktopWindow->RemoveMouseMotionWindow(this);
-					this->draggingWindow = false;
-					break;
+					switch (event->buttonState)
+					{
+						case GAL2D::ButtonState::Down:
+						{
+							desktopWindow->SetMotionCaptureWindow(this);
+							this->draggingWindow = true;
+							this->dragDeltaMin = event->mousePosition - this->boundingRect.minCorner;
+							this->dragDeltaMax = event->mousePosition - this->boundingRect.maxCorner;
+							break;
+						}
+						case GAL2D::ButtonState::Up:
+						{
+							desktopWindow->SetMotionCaptureWindow(nullptr);
+							this->draggingWindow = false;
+							break;
+						}
+					}
 				}
 			}
+
+			break;
 		}
+		case EventType::MOUSE_MOTION:
+		{
+			auto* event = static_cast<const MouseMotionEvent*>(eventData);
 
-		return true;
-	}
+			if (this->draggingWindow)
+			{
+				this->boundingRect.minCorner = event->mousePosition - this->dragDeltaMin;
+				this->boundingRect.maxCorner = event->mousePosition - this->dragDeltaMax;
+			}
+			else
+			{
+				// STPTODO: Is the mouse hovering over an edge or corner?  If so, change mouse cursor icon.
+			}
 
-	return false;
-}
-
-/*virtual*/ void TopLevelWindow::HandleMouseMotionEvent(const GAL2D::Vector& mousePosition)
-{
-	if (this->draggingWindow)
-	{
-		this->boundingRect.minCorner = mousePosition - this->dragDeltaMin;
-		this->boundingRect.maxCorner = mousePosition - this->dragDeltaMax;
+			break;
+		}
 	}
 }

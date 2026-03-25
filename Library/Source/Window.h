@@ -7,6 +7,25 @@
 
 namespace VeryGUI
 {
+	enum EventType
+	{
+		MOUSE_CLICK,
+		MOUSE_MOTION,
+		KEYBOARD
+	};
+
+	struct MouseClickEvent
+	{
+		GAL2D::Vector mousePosition;
+		GAL2D::MouseButton mouseButton;
+		GAL2D::ButtonState buttonState;
+	};
+
+	struct MouseMotionEvent
+	{
+		GAL2D::Vector mousePosition;
+	};
+
 	/**
 	 * This is the base class for all members of the window hierarchy.
 	 */
@@ -36,22 +55,13 @@ namespace VeryGUI
 		virtual void Draw(GAL2D::GraphicsInterface* graphics);
 
 		/**
-		 * Override this method to handle mouse click events that occur in the window.
+		 * Override this method to handle events that occur in the window.
+		 * Call this base-class method if you would like the parent to also handle the event.
 		 * 
-		 * @param[in] mousePosition This is the world position of where the mouse event occurred.
-		 * @param[in] mouseButton This is the mouse button in question.
-		 * @param[in] buttonState This indicates if the button was just pressed or just released.
-		 * @return True should be returned if you don't want the event to continue propagating up the window chain.
+		 * @param[in] eventType This can be used to know how to cast the given event.
+		 * @param[in] eventData This is an opaque pointer to the event structure.
 		 */
-		virtual bool HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState);
-
-		/**
-		 * Override this method to handle mouse motion events, provided this window
-		 * has subscribed to such events.
-		 * 
-		 * @param[in] mousePosition This is the world position of the mouse.
-		 */
-		virtual void HandleMouseMotionEvent(const GAL2D::Vector& mousePosition);
+		virtual void HandleEvent(EventType eventType, const void* eventData);
 
 		bool AddChildWindow(std::shared_ptr<Window> childWindow);
 		bool RemoveChildWindow(std::shared_ptr<Window> childWindow);

@@ -120,11 +120,9 @@ std::shared_ptr<Window> Window::GetRootWindow()
 	return window;
 }
 
-/*virtual*/ bool Window::HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState)
+/*virtual*/ void Window::HandleEvent(EventType eventType, const void* eventData)
 {
-	return false;
-}
-
-/*virtual*/ void Window::HandleMouseMotionEvent(const GAL2D::Vector& mousePosition)
-{
+	std::shared_ptr<Window> parentWindow = this->GetParentWindow();
+	if (parentWindow.get())
+		parentWindow->HandleEvent(eventType, eventData);
 }
