@@ -45,6 +45,14 @@ namespace VeryGUI
 		 */
 		virtual bool HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState);
 
+		/**
+		 * Override this method to handle mouse motion events, provided this window
+		 * has subscribed to such events.
+		 * 
+		 * @param[in] mousePosition This is the world position of the mouse.
+		 */
+		virtual void HandleMouseMotionEvent(const GAL2D::Vector& mousePosition);
+
 		bool AddChildWindow(std::shared_ptr<Window> childWindow);
 		bool RemoveChildWindow(std::shared_ptr<Window> childWindow);
 		bool HasChildWindow(std::shared_ptr<Window> childWindow, int* offset = nullptr) const;
@@ -54,6 +62,7 @@ namespace VeryGUI
 
 		std::shared_ptr<Window> FindDeepestWindowContainingPoint(const GAL2D::Vector& point);
 		std::shared_ptr<Window> GetParentWindow();
+		std::shared_ptr<Window> GetRootWindow();
 
 	protected:
 		

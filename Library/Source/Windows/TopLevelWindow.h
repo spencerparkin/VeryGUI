@@ -18,6 +18,7 @@ namespace VeryGUI
 		virtual void LayoutChildren() override;
 		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 		virtual bool HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState) override;
+		virtual void HandleMouseMotionEvent(const GAL2D::Vector& mousePosition) override;
 
 		void SetTitle(const std::string& title);
 		const std::string& GetTitle() const;
@@ -42,6 +43,9 @@ namespace VeryGUI
 		GAL2D::Rectangle titleBarRect;
 		GAL2D::Rectangle innerRect;
 		std::shared_ptr<GAL2D::Font> titleFont;
+		bool draggingWindow;
+		GAL2D::Vector dragDeltaMin;
+		GAL2D::Vector dragDeltaMax;
 
 		static double borderMargin;
 		static double titleBarThickness;

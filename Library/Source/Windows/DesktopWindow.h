@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "GAL2DMakeInterface.h"
 #include <filesystem>
+#include <unordered_set>
 
 namespace VeryGUI
 {
@@ -19,6 +20,9 @@ namespace VeryGUI
 
 		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 
+		void AddMouseMotionWindow(Window* window);
+		void RemoveMouseMotionWindow(Window* window);
+
 	protected:
 
 		GAL2D::Vector size;
@@ -26,5 +30,6 @@ namespace VeryGUI
 		std::filesystem::path backgroundImagePath;
 		std::shared_ptr<GAL2D::GraphicsInterface> graphicsInterface;
 		std::shared_ptr<GAL2D::Texture> backgroundTexture;
+		std::unordered_set<std::shared_ptr<Window>> mouseMotionWindowSet;
 	};
 }

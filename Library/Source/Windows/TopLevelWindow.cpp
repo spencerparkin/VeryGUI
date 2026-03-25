@@ -1,4 +1,5 @@
 #include "Windows/TopLevelWindow.h"
+#include "Windows/DesktopWindow.h"
 #include <assert.h>
 
 using namespace VeryGUI;
@@ -8,6 +9,7 @@ double TopLevelWindow::titleBarThickness = 20.0;
 
 TopLevelWindow::TopLevelWindow()
 {
+	this->draggingWindow = false;
 }
 
 /*virtual*/ TopLevelWindow::~TopLevelWindow()
@@ -119,12 +121,41 @@ const std::string& TopLevelWindow::GetTitle() const
 
 /*virtual*/ bool TopLevelWindow::HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState)
 {
-	if (this->titleBarRect.ContainsPoint(mousePosition))
+	if (mouseButton == GAL2D::MouseButton::Left && this->titleBarRect.ContainsPoint(mousePosition))
 	{
-		// STPTODO: Write this.
+		std::shared_ptr<DesktopWindow> desktopWindow = std::dynamic_pointer_cast<DesktopWindow>(this->GetRootWindow());
+		if (desktopWindow.get())
+		{
+			switch (buttonState)
+			{
+				case GAL2D::ButtonState::Down:
+				{
+					desktopWindow->AddMouseMotionWindow(this);
+					this->draggingWindow = true;
+					this->dragDeltaMin = mousePosition - this->boundingRect.minCorner;
+					this->dragDeltaMax = mousePosition - this->boundingRect.maxCorner;
+					break;
+				}
+				case GAL2D::ButtonState::Up:
+				{
+					desktopWindow->RemoveMouseMotionWindow(this);
+					this->draggingWindow = false;
+					break;
+				}
+			}
+		}
 
 		return true;
 	}
 
 	return false;
+}
+
+/*virtual*/ void TopLevelWindow::HandleMouseMotionEvent(const GAL2D::Vector& mousePosition)
+{
+	if (this->draggingWindow)
+	{
+		this->boundingRect.minCorner = mousePosition - this->dragDeltaMin;
+		this->boundingRect.maxCorner = mousePosition - this->dragDeltaMax;
+	}
 }

@@ -105,7 +105,26 @@ std::shared_ptr<Window> Window::GetParentWindow()
 	return this->parentWindowWeakPtr.lock();
 }
 
+std::shared_ptr<Window> Window::GetRootWindow()
+{
+	std::shared_ptr<Window> window = this->shared_from_this();
+	while (true)
+	{
+		std::shared_ptr<Window> parentWindow = window->GetParentWindow();
+		if (!parentWindow.get())
+			break;
+
+		window = parentWindow;
+	}
+
+	return window;
+}
+
 /*virtual*/ bool Window::HandleMouseClickEvent(const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState)
 {
 	return false;
+}
+
+/*virtual*/ void Window::HandleMouseMotionEvent(const GAL2D::Vector& mousePosition)
+{
 }

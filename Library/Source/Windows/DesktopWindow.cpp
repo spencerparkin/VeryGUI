@@ -47,6 +47,12 @@ bool DesktopWindow::Run()
 			}
 		};
 
+	this->graphicsInterface->mouseMotionEventHandler = [this](const GAL2D::Vector& mousePosition) -> void
+		{
+			for (std::shared_ptr<Window> window : this->mouseMotionWindowSet)
+				window->HandleMouseMotionEvent(mousePosition);
+		};
+
 	while (this->graphicsInterface->HandleEvents())
 	{
 		GAL2D::Vector screenSize;
@@ -86,4 +92,14 @@ bool DesktopWindow::Run()
 	graphics->RenderRectangle(backgroundRect, GAL2D::Color(0.5, 0.5, 0.5, 1.0), this->backgroundTexture);
 
 	Window::Draw(graphics);
+}
+
+void DesktopWindow::AddMouseMotionWindow(Window* window)
+{
+	this->mouseMotionWindowSet.insert(window->shared_from_this());
+}
+
+void DesktopWindow::RemoveMouseMotionWindow(Window* window)
+{
+	this->mouseMotionWindowSet.erase(window->shared_from_this());
 }
