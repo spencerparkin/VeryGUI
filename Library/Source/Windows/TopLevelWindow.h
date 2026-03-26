@@ -38,11 +38,25 @@ namespace VeryGUI
 
 		void CalcBorderRects(BorderRects& borderRects);
 
+		enum MouseAction
+		{
+			NONE,
+			CHANGING_LOCATION,
+			CHANGING_MIN_X,
+			CHANGING_MAX_X,
+			CHANGING_MIN_Y,
+			CHANGING_MAX_Y,
+			CHANGING_MIN_X_MIN_Y,
+			CHANGING_MIN_X_MAX_Y,
+			CHANGING_MAX_X_MIN_Y,
+			CHANGING_MAX_X_MAX_Y
+		};
+
 		std::string title;
 		GAL2D::Rectangle titleBarRect;
 		GAL2D::Rectangle innerRect;
 		std::shared_ptr<GAL2D::Font> titleFont;
-		bool draggingWindow;
+		MouseAction mouseAction;
 		GAL2D::Vector dragDeltaMin;
 		GAL2D::Vector dragDeltaMax;
 

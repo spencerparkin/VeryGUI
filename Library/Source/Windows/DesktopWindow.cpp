@@ -37,15 +37,19 @@ bool DesktopWindow::Run()
 
 	this->graphicsInterface->mouseClickEventHandler = [this](const GAL2D::Vector& mousePosition, GAL2D::MouseButton mouseButton, GAL2D::ButtonState buttonState) -> void
 		{
-			std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
-			if (window.get())
-			{
-				MouseClickEvent event;
-				event.mousePosition = mousePosition;
-				event.mouseButton = mouseButton;
-				event.buttonState = buttonState;
+			MouseClickEvent event;
+			event.mousePosition = mousePosition;
+			event.mouseButton = mouseButton;
+			event.buttonState = buttonState;
 
-				window->HandleEvent(EventType::MOUSE_CLICK, &event);
+			std::shared_ptr<Window> mouseCaptureWindow = this->mouseCaptureWindowWeakPtr.lock();
+			if (mouseCaptureWindow.get())
+				mouseCaptureWindow->HandleEvent(EventType::MOUSE_CLICK, &event);
+			else
+			{
+				std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
+				if (window.get())
+					window->HandleEvent(EventType::MOUSE_CLICK, &event);
 			}
 		};
 
@@ -54,9 +58,9 @@ bool DesktopWindow::Run()
 			MouseMotionEvent event;
 			event.mousePosition = mousePosition;
 
-			std::shared_ptr<Window> motionCaptureWindow = this->motionCaptureWindowWeakPtr.lock();
-			if (motionCaptureWindow.get())
-				motionCaptureWindow->HandleEvent(EventType::MOUSE_MOTION, &event);
+			std::shared_ptr<Window> mouseCaptureWindow = this->mouseCaptureWindowWeakPtr.lock();
+			if (mouseCaptureWindow.get())
+				mouseCaptureWindow->HandleEvent(EventType::MOUSE_MOTION, &event);
 			else
 			{
 				std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
@@ -106,10 +110,31 @@ bool DesktopWindow::Run()
 	Window::Draw(graphics);
 }
 
-void DesktopWindow::SetMotionCaptureWindow(Window* window)
+void DesktopWindow::SetMouseCaptureWindow(Window* window)
 {
 	if (window)
-		this->motionCaptureWindowWeakPtr = window->shared_from_this();
+		this->mouseCaptureWindowWeakPtr = window->shared_from_this();
 	else
-		this->motionCaptureWindowWeakPtr.reset();
+		this->mouseCaptureWindowWeakPtr.reset();
+}
+
+bool DesktopWindow::BringWindowToFront(Window* window)
+{
+	for (int i = 0; i < (int)this->childWindowArray.size(); i++)
+	{
+		if (this->childWindowArray[i].get() == window)
+		{
+			int j = (int)this->childWindowArray.size() - 1;
+			if (i != j)
+			{
+				std::shared_ptr<Window> windowPtr = this->childWindowArray[j];
+				this->childWindowArray[j] = this->childWindowArray[i];
+				this->childWindowArray[i] = windowPtr;
+			}
+
+			return true;
+		}
+	}
+
+	return false;
 }

@@ -9,7 +9,7 @@ double TopLevelWindow::titleBarThickness = 20.0;
 
 TopLevelWindow::TopLevelWindow()
 {
-	this->draggingWindow = false;
+	this->mouseAction = MouseAction::NONE;
 }
 
 /*virtual*/ TopLevelWindow::~TopLevelWindow()
@@ -127,7 +127,7 @@ const std::string& TopLevelWindow::GetTitle() const
 		{
 			auto* event = static_cast<const MouseClickEvent*>(eventData);
 
-			if (event->mouseButton == GAL2D::MouseButton::Left && this->titleBarRect.ContainsPoint(event->mousePosition))
+			if (event->mouseButton == GAL2D::MouseButton::Left)
 			{
 				std::shared_ptr<DesktopWindow> desktopWindow = std::dynamic_pointer_cast<DesktopWindow>(this->GetRootWindow());
 				if (desktopWindow.get())
@@ -136,16 +136,73 @@ const std::string& TopLevelWindow::GetTitle() const
 					{
 						case GAL2D::ButtonState::Down:
 						{
-							desktopWindow->SetMotionCaptureWindow(this);
-							this->draggingWindow = true;
-							this->dragDeltaMin = event->mousePosition - this->boundingRect.minCorner;
-							this->dragDeltaMax = event->mousePosition - this->boundingRect.maxCorner;
+							BorderRects borderRects;
+							this->CalcBorderRects(borderRects);
+
+							if (this->titleBarRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_LOCATION;
+								this->dragDeltaMin = event->mousePosition - this->boundingRect.minCorner;
+								this->dragDeltaMax = event->mousePosition - this->boundingRect.maxCorner;
+							}
+							else if (borderRects.lRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MIN_X;
+								this->dragDeltaMin.x = event->mousePosition.x - this->boundingRect.minCorner.x;
+							}
+							else if (borderRects.rRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MAX_X;
+								this->dragDeltaMax.x = event->mousePosition.x - this->boundingRect.maxCorner.x;
+							}
+							else if (borderRects.bRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MIN_Y;
+								this->dragDeltaMin.y = event->mousePosition.y - this->boundingRect.minCorner.y;
+							}
+							else if (borderRects.tRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MAX_Y;
+								this->dragDeltaMax.y = event->mousePosition.y - this->boundingRect.maxCorner.y;
+							}
+							else if (borderRects.blRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MIN_X_MIN_Y;
+								this->dragDeltaMin.x = event->mousePosition.x - this->boundingRect.minCorner.x;
+								this->dragDeltaMin.y = event->mousePosition.y - this->boundingRect.minCorner.y;
+							}
+							else if (borderRects.brRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MAX_X_MIN_Y;
+								this->dragDeltaMax.x = event->mousePosition.x - this->boundingRect.maxCorner.x;
+								this->dragDeltaMin.y = event->mousePosition.y - this->boundingRect.minCorner.y;
+							}
+							else if (borderRects.tlRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MIN_X_MAX_Y;
+								this->dragDeltaMin.x = event->mousePosition.x - this->boundingRect.minCorner.x;
+								this->dragDeltaMax.y = event->mousePosition.y - this->boundingRect.maxCorner.y;
+							}
+							else if (borderRects.trRect.ContainsPoint(event->mousePosition))
+							{
+								this->mouseAction = MouseAction::CHANGING_MAX_X_MAX_Y;
+								this->dragDeltaMax.x = event->mousePosition.x - this->boundingRect.maxCorner.x;
+								this->dragDeltaMax.y = event->mousePosition.y - this->boundingRect.maxCorner.y;
+							}
+
+							if (this->mouseAction != MouseAction::NONE)
+								desktopWindow->SetMouseCaptureWindow(this);
+							
+							desktopWindow->BringWindowToFront(this);
 							break;
 						}
 						case GAL2D::ButtonState::Up:
 						{
-							desktopWindow->SetMotionCaptureWindow(nullptr);
-							this->draggingWindow = false;
+							if (this->mouseAction != MouseAction::NONE)
+							{
+								desktopWindow->SetMouseCaptureWindow(nullptr);
+								this->mouseAction = MouseAction::NONE;
+							}
 							break;
 						}
 					}
@@ -158,14 +215,67 @@ const std::string& TopLevelWindow::GetTitle() const
 		{
 			auto* event = static_cast<const MouseMotionEvent*>(eventData);
 
-			if (this->draggingWindow)
+			GAL2D::Rectangle originalRect = this->boundingRect;
+
+			switch (this->mouseAction)
 			{
-				this->boundingRect.minCorner = event->mousePosition - this->dragDeltaMin;
-				this->boundingRect.maxCorner = event->mousePosition - this->dragDeltaMax;
+				case MouseAction::CHANGING_LOCATION:
+				{
+					this->boundingRect.minCorner = event->mousePosition - this->dragDeltaMin;
+					this->boundingRect.maxCorner = event->mousePosition - this->dragDeltaMax;
+					break;
+				}
+				case MouseAction::CHANGING_MIN_X:
+				{
+					this->boundingRect.minCorner.x = event->mousePosition.x - this->dragDeltaMin.x;
+					break;
+				}
+				case MouseAction::CHANGING_MAX_X:
+				{
+					this->boundingRect.maxCorner.x = event->mousePosition.x - this->dragDeltaMax.x;
+					break;
+				}
+				case MouseAction::CHANGING_MIN_Y:
+				{
+					this->boundingRect.minCorner.y = event->mousePosition.y - this->dragDeltaMin.y;
+					break;
+				}
+				case MouseAction::CHANGING_MAX_Y:
+				{
+					this->boundingRect.maxCorner.y = event->mousePosition.y - this->dragDeltaMax.y;
+					break;
+				}
+				case MouseAction::CHANGING_MIN_X_MIN_Y:
+				{
+					this->boundingRect.minCorner.x = event->mousePosition.x - this->dragDeltaMin.x;
+					this->boundingRect.minCorner.y = event->mousePosition.y - this->dragDeltaMin.y;
+					break;
+				}
+				case MouseAction::CHANGING_MAX_X_MIN_Y:
+				{
+					this->boundingRect.maxCorner.x = event->mousePosition.x - this->dragDeltaMax.x;
+					this->boundingRect.minCorner.y = event->mousePosition.y - this->dragDeltaMin.y;
+					break;
+				}
+				case MouseAction::CHANGING_MIN_X_MAX_Y:
+				{
+					this->boundingRect.minCorner.x = event->mousePosition.x - this->dragDeltaMin.x;
+					this->boundingRect.maxCorner.y = event->mousePosition.y - this->dragDeltaMax.y;
+					break;
+				}
+				case MouseAction::CHANGING_MAX_X_MAX_Y:
+				{
+					this->boundingRect.maxCorner.x = event->mousePosition.x - this->dragDeltaMax.x;
+					this->boundingRect.maxCorner.y = event->mousePosition.y - this->dragDeltaMax.y;
+					break;
+				}
 			}
-			else
+
+			if (!this->boundingRect.IsValid() ||
+				this->boundingRect.Width() < this->titleBarThickness * 2.0 ||
+				this->boundingRect.Height() < this->titleBarThickness * 2.0)
 			{
-				// STPTODO: Is the mouse hovering over an edge or corner?  If so, change mouse cursor icon.
+				this->boundingRect = originalRect;
 			}
 
 			break;

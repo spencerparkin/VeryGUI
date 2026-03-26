@@ -20,7 +20,8 @@ namespace VeryGUI
 
 		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 
-		void SetMotionCaptureWindow(Window* window);
+		void SetMouseCaptureWindow(Window* window);
+		bool BringWindowToFront(Window* window);
 
 	protected:
 
@@ -29,6 +30,6 @@ namespace VeryGUI
 		std::filesystem::path backgroundImagePath;
 		std::shared_ptr<GAL2D::GraphicsInterface> graphicsInterface;
 		std::shared_ptr<GAL2D::Texture> backgroundTexture;
-		std::weak_ptr<Window> motionCaptureWindowWeakPtr;
+		std::weak_ptr<Window> mouseCaptureWindowWeakPtr;
 	};
 }

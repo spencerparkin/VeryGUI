@@ -82,8 +82,10 @@ std::shared_ptr<Window> Window::FindDeepestWindowContainingPoint(const GAL2D::Ve
 	{
 		Window* subWindow = nullptr;
 
-		for (std::shared_ptr<Window> childWindow : window->childWindowArray)
+		for (int i = (int)window->childWindowArray.size() - 1; i >= 0; i--)
 		{
+			std::shared_ptr<Window> childWindow = window->childWindowArray[i];
+
 			if (childWindow->boundingRect.ContainsPoint(point))
 			{
 				subWindow = childWindow.get();
