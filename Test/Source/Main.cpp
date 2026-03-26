@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE instanceHandle, HINSTANCE prevInstanceHandle, LPSTR
 		windowA->SetTitle("Window A");
 		desktop->AddChildWindow(windowA);
 
-		auto blankWindow = std::make_shared<VeryGUI::BlankWindow>(GAL2D::Color(0.5, 0.5, 0.5, 1.0));
+		auto blankWindow = std::make_shared<VeryGUI::BlankWindow>("Images\\ImageA.png");
 		windowA->AddChildWindow(blankWindow);
 
 		auto windowB = std::make_shared<VeryGUI::TopLevelWindow>();
@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE instanceHandle, HINSTANCE prevInstanceHandle, LPSTR
 		windowB->SetTitle("Window B");
 		desktop->AddChildWindow(windowB);
 
-		blankWindow = std::make_shared<VeryGUI::BlankWindow>(GAL2D::Color(0.5, 0.5, 0.5, 1.0));
+		blankWindow = std::make_shared<VeryGUI::BlankWindow>("Images\\ImageB.png");
 		windowB->AddChildWindow(blankWindow);
 	}
 
