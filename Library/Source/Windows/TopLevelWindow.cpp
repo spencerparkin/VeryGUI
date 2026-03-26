@@ -269,6 +269,15 @@ const std::string& TopLevelWindow::GetTitle() const
 					this->boundingRect.maxCorner.y = event->mousePosition.y - this->dragDeltaMax.y;
 					break;
 				}
+				case MouseAction::NONE:
+				{
+					BorderRects borderRects;
+					this->CalcBorderRects(borderRects);
+
+					// STPTODO: Change cursor icon here if mouse is hovering over a border rect.
+
+					break;
+				}
 			}
 
 			if (!this->boundingRect.IsValid() ||

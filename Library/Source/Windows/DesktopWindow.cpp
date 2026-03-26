@@ -71,14 +71,6 @@ bool DesktopWindow::Run()
 
 	while (this->graphicsInterface->HandleEvents())
 	{
-		GAL2D::Vector screenSize;
-		this->graphicsInterface->GetScreenResolution(screenSize);
-
-		this->graphicsInterface->renderState.worldRegion.minCorner.x = 0.0;
-		this->graphicsInterface->renderState.worldRegion.minCorner.y = 0.0;
-		this->graphicsInterface->renderState.worldRegion.maxCorner.x = screenSize.x;
-		this->graphicsInterface->renderState.worldRegion.maxCorner.y = screenSize.y;
-
 		this->SetBoundingRectangle(graphicsInterface->renderState.worldRegion);
 
 		this->LayoutChildren();
