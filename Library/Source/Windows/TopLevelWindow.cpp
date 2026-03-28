@@ -16,7 +16,7 @@ TopLevelWindow::TopLevelWindow()
 {
 }
 
-/*virtual*/ void TopLevelWindow::LayoutChildren()
+/*virtual*/ void TopLevelWindow::LayoutChildren(GAL2D::GraphicsInterface* graphics)
 {
 	this->innerRect = this->boundingRect;
 	this->innerRect.ApplyMarginDelta(-borderMargin);
@@ -37,6 +37,8 @@ TopLevelWindow::TopLevelWindow()
 		std::shared_ptr<Window> childWindow = this->childWindowArray[0];
 		childWindow->SetBoundingRectangle(clientRect);
 	}
+
+	Window::LayoutChildren(graphics);
 }
 
 /*virtual*/ void TopLevelWindow::Draw(GAL2D::GraphicsInterface* graphics)

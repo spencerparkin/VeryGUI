@@ -14,7 +14,7 @@ SplitterWindow::SplitterWindow(Orientation orientation)
 {
 }
 
-/*virtual*/ void SplitterWindow::LayoutChildren()
+/*virtual*/ void SplitterWindow::LayoutChildren(GAL2D::GraphicsInterface* graphics)
 {
 	assert(this->childWindowArray.size() == 2 && "Splitter windows should have exactly two children.");
 

@@ -2,6 +2,7 @@
 #include "Windows/DesktopWindow.h"
 #include "Windows/TopLevelWindow.h"
 #include "Windows/BlankWindow.h"
+#include "CustomBlankWindow.h"
 
 int WINAPI WinMain(HINSTANCE instanceHandle, HINSTANCE prevInstanceHandle, LPSTR cmdLine, int cmdShow)
 {
@@ -25,7 +26,7 @@ int WINAPI WinMain(HINSTANCE instanceHandle, HINSTANCE prevInstanceHandle, LPSTR
 		windowB->SetTitle("Window B");
 		desktop->AddChildWindow(windowB);
 
-		blankWindow = std::make_shared<VeryGUI::BlankWindow>("Images\\ImageB.png");
+		blankWindow = std::make_shared<CustomBlankWindow>("Images\\ImageB.png");
 		windowB->AddChildWindow(blankWindow);
 	}
 

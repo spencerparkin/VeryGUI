@@ -15,7 +15,7 @@ namespace VeryGUI
 		TopLevelWindow();
 		virtual ~TopLevelWindow();
 
-		virtual void LayoutChildren() override;
+		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics) override;
 		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 		virtual void HandleEvent(EventType eventType, const void* eventData) override;
 

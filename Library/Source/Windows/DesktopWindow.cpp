@@ -73,7 +73,7 @@ bool DesktopWindow::Run()
 	{
 		this->SetBoundingRectangle(graphicsInterface->renderState.worldRegion);
 
-		this->LayoutChildren();
+		this->LayoutChildren(this->graphicsInterface.get());
 
 		graphicsInterface->BeginRendering();
 		this->Draw(this->graphicsInterface.get());

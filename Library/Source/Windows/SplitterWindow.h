@@ -21,7 +21,7 @@ namespace VeryGUI
 		SplitterWindow(Orientation orientation);
 		virtual ~SplitterWindow();
 
-		virtual void LayoutChildren() override;
+		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics) override;
 		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 
 	private:

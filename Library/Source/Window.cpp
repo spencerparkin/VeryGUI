@@ -10,10 +10,10 @@ Window::Window()
 {
 }
 
-/*virtual*/ void Window::LayoutChildren()
+/*virtual*/ void Window::LayoutChildren(GAL2D::GraphicsInterface* graphics)
 {
 	for (const std::shared_ptr<Window> childWindow : this->childWindowArray)
-		childWindow->LayoutChildren();
+		childWindow->LayoutChildren(graphics);
 }
 
 /*virtual*/ void Window::Draw(GAL2D::GraphicsInterface* graphics)

@@ -38,11 +38,14 @@ namespace VeryGUI
 		/**
 		 * Each type of window is responsible for how it lays out its children.
 		 * (Some windows exist only to layout their children and don't draw anything.)
-		 * Prior to this call, the bounding rectangle of this window should have already
-		 * been decided, and our only purpose here (in this method) is to calculate the
-		 * bounding rectangles of our child windows.
+		 * In most cases, prior to this call, the bounding rectangle of this window should
+		 * have already been decided by the parent, and our only purpose here is to calculate
+		 * the bounding rectangles of our child windows.  In other cases, this is where the
+		 * bounding rectangle of this window is calculated.
+		 * 
+		 * @param[in] graphics This is provided, not for drawing, but for resource acquisition and/or metrics queries.
 		 */
-		virtual void LayoutChildren();
+		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics);
 
 		/**
 		 * This should be overridden if the window renders anything.  It should draw
@@ -51,6 +54,8 @@ namespace VeryGUI
 		 * first before calling the base class' draw method.  This default implementation
 		 * just calls draw on the children.  This way we get the painter's algorithm,
 		 * drawing everything back to front.
+		 * 
+		 * @param[in] graphics This is provided for drawing the window and its contents.
 		 */
 		virtual void Draw(GAL2D::GraphicsInterface* graphics);
 

@@ -11,6 +11,8 @@ set(VERY_GUI_SOURCES
 	Source/Windows/BlankWindow.h
 	Source/Windows/SplitterWindow.cpp
 	Source/Windows/SplitterWindow.h
+	Source/Windows/MenuWindow.cpp
+	Source/Windows/MenuWindow.h
 )
 
 add_library(VeryGUI STATIC ${VERY_GUI_SOURCES})
