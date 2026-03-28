@@ -4,7 +4,7 @@
 
 using namespace VeryGUI;
 
-double TopLevelWindow::borderMargin = 5.0;
+double TopLevelWindow::borderMargin = 8.0;
 double TopLevelWindow::titleBarThickness = 20.0;
 
 TopLevelWindow::TopLevelWindow()
