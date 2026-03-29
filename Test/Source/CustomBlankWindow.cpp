@@ -58,6 +58,10 @@ CustomBlankWindow::ContextMenuDriver::ContextMenuDriver()
 {
 	if (menuName == "menuA")
 		return 6;
+	else if (menuName == "menuB")
+		return 4;
+	else if (menuName == "menuC")
+		return 3;
 
 	return 0;
 }
@@ -88,6 +92,39 @@ CustomBlankWindow::ContextMenuDriver::ContextMenuDriver()
 			return true;
 		}
 	}
+	else if (menuName == "menuB")
+	{
+		switch (i)
+		{
+		case 0:
+			label = "Launch Nukes";
+			return true;
+		case 1:
+			label = "Launch Missiles";
+			return true;
+		case 2:
+			label = "Launch Torpedoes";
+			return true;
+		case 3:
+			label = "Launch Merchandise";
+			return true;
+		}
+	}
+	else if (menuName == "menuC")
+	{
+		switch (i)
+		{
+		case 0:
+			label = "T-shirt";
+			return true;
+		case 1:
+			label = "Sun Cap";
+			return true;
+		case 2:
+			label = "Mug";
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -107,6 +144,25 @@ CustomBlankWindow::ContextMenuDriver::ContextMenuDriver()
 
 /*virtual*/ bool CustomBlankWindow::ContextMenuDriver::GetMenuItemSubMenuName(const std::string& menuName, int i, std::string& subMenuName)
 {
+	if (menuName == "menuA")
+	{
+		switch (i)
+		{
+		case 4:
+			subMenuName = "menuB";
+			return true;
+		}
+	}
+	else if (menuName == "menuB")
+	{
+		switch (i)
+		{
+		case 3:
+			subMenuName = "menuC";
+			return true;
+		}
+	}
+
 	return false;
 }
 

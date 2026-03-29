@@ -32,7 +32,7 @@ MenuDriver::MenuDriver()
 
 /*virtual*/ std::shared_ptr<MenuDriver> MenuDriver::GetSubMenuDriver(const std::string& subMenuName)
 {
-	return nullptr;
+	return this->shared_from_this();
 }
 
 /*virtual*/ void MenuDriver::HandleMenuItemClick(const std::string& menuName, int i)
@@ -140,10 +140,15 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 	}
 
 	this->boundingRect.ApplyMarginDelta(4.0);
+
+	Window::LayoutChildren(graphics);
 }
 
 /*virtual*/ void MenuWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
+	GAL2D::Rectangle shadowRect = this->boundingRect + GAL2D::Vector(4.0, -4.0);
+	graphics->RenderRectangle(shadowRect, GAL2D::Color(0.0, 0.0, 0.0, 0.3));
+
 	graphics->RenderRectangle(this->boundingRect, GAL2D::Color(0.5, 0.5, 0.5, 1.0));
 
 	for (auto pair : this->menuItemCacheMap)
@@ -156,6 +161,13 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 
 		graphics->RenderText(label, this->labelFont, menuItemCache->labelRect, GAL2D::Color(0.0, 0.0, 0.0, 1.0), GAL2D::GraphicsInterface::ALIGN_LEFT);
 	}
+
+	Window::Draw(graphics);
+}
+
+/*virtual*/ bool MenuWindow::CanExceedParentBounds() const
+{
+	return true;
 }
 
 /*virtual*/ void MenuWindow::HandleEvent(EventType eventType, const void* eventData)
@@ -170,6 +182,30 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 			{
 				std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
 				menuItemCache->isHighlighted = menuItemCache->labelRect.ContainsPoint(event->mousePosition);
+				if (menuItemCache->isHighlighted)
+				{
+					std::string subMenuName;
+					if (this->menuDriver->GetMenuItemSubMenuName(this->menuName, menuItemCache->i, subMenuName))
+					{
+						if (menuItemCache->subMenuWindow.expired())
+						{
+							std::shared_ptr<MenuDriver> subMenuDriver = this->menuDriver->GetSubMenuDriver(subMenuName);
+							assert(subMenuDriver.get());
+							std::shared_ptr<MenuWindow> subMenuWindow = std::make_shared<MenuWindow>(subMenuName, subMenuDriver);
+							GAL2D::Vector anchorPoint = menuItemCache->labelRect.maxCorner;
+							anchorPoint.x += 4.0;
+							subMenuWindow->SetAnchor(anchorPoint, AnchorPlacement::UPPER_LEFT);
+							this->AddChildWindow(subMenuWindow);
+							menuItemCache->subMenuWindow = subMenuWindow;
+						}
+					}
+				}
+				else
+				{
+					std::shared_ptr<MenuWindow> subMenuWindow = menuItemCache->subMenuWindow.lock();
+					if (subMenuWindow)
+						this->RemoveChildWindow(subMenuWindow);
+				}
 			}
 
 			break;
@@ -186,9 +222,17 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 					if (menuItemCache->labelRect.ContainsPoint(event->mousePosition))
 					{
 						const std::string& label = pair.first;
+						
 						this->menuDriver->HandleMenuItemClick(this->menuName, menuItemCache->i);
+
 						std::shared_ptr<Window> parentWindow = this->GetParentWindow();
-						parentWindow->RemoveChildWindow(this->shared_from_this());
+						std::shared_ptr<Window> childWindow = this->shared_from_this();
+						while (dynamic_cast<MenuWindow*>(parentWindow.get()) != nullptr)
+						{
+							childWindow = parentWindow;
+							parentWindow = parentWindow->GetParentWindow();
+						}
+						parentWindow->RemoveChildWindow(childWindow);
 						break;
 					}
 				}

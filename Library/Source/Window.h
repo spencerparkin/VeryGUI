@@ -68,6 +68,13 @@ namespace VeryGUI
 		 */
 		virtual void HandleEvent(EventType eventType, const void* eventData);
 
+		/**
+		 * Return true here if the child window's bounding rectangle can legally be
+		 * fully or partially outside of the parent's bounding rectangle.  The default
+		 * here returns false.
+		 */
+		virtual bool CanExceedParentBounds() const;
+
 		bool AddChildWindow(std::shared_ptr<Window> childWindow);
 		bool RemoveChildWindow(std::shared_ptr<Window> childWindow);
 		bool HasChildWindow(std::shared_ptr<Window> childWindow, int* offset = nullptr) const;

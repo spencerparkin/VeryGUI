@@ -22,6 +22,11 @@ Window::Window()
 		childWindow->Draw(graphics);
 }
 
+/*virtual*/ bool Window::CanExceedParentBounds() const
+{
+	return false;
+}
+
 bool Window::AddChildWindow(std::shared_ptr<Window> childWindow)
 {
 	if (this->HasChildWindow(childWindow))
@@ -76,30 +81,26 @@ std::shared_ptr<Window> Window::FindDeepestWindowContainingPoint(const GAL2D::Ve
 {
 	if (!this->boundingRect.ContainsPoint(point))
 		return nullptr;
-	
-	Window* window = this;
-	while (window)
+
+	std::list<Window*> windowQueue;
+	windowQueue.push_back(this);
+
+	Window* foundWindow = nullptr;
+
+	while (windowQueue.size() > 0)
 	{
-		Window* subWindow = nullptr;
+		Window* window = *windowQueue.begin();
+		windowQueue.pop_front();
 
-		for (int i = (int)window->childWindowArray.size() - 1; i >= 0; i--)
-		{
-			std::shared_ptr<Window> childWindow = window->childWindowArray[i];
+		if (window->boundingRect.ContainsPoint(point))
+			foundWindow = window;
 
-			if (childWindow->boundingRect.ContainsPoint(point))
-			{
-				subWindow = childWindow.get();
-				break;
-			}
-		}
-
-		if (!subWindow)
-			break;
-
-		window = subWindow;
+		for (std::shared_ptr<Window> childWindow : window->childWindowArray)
+			if (window->boundingRect.ContainsRectangle(childWindow->boundingRect) || childWindow->CanExceedParentBounds())
+				windowQueue.push_back(childWindow.get());
 	}
 
-	return window->shared_from_this();
+	return foundWindow->shared_from_this();
 }
 
 std::shared_ptr<Window> Window::GetParentWindow()

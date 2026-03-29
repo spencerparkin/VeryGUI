@@ -49,6 +49,7 @@ namespace VeryGUI
 		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics) override;
 		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
 		virtual void HandleEvent(EventType eventType, const void* eventData) override;
+		virtual bool CanExceedParentBounds() const override;
 
 	protected:
 
@@ -59,6 +60,7 @@ namespace VeryGUI
 			double labelWidth;
 			std::filesystem::path iconPath;
 			std::shared_ptr<GAL2D::Texture> iconTexture;
+			std::weak_ptr<MenuWindow> subMenuWindow;
 			GAL2D::Rectangle labelRect;
 		};
 
