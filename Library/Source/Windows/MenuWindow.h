@@ -20,7 +20,7 @@ namespace VeryGUI
 		virtual int GetNumMenuItems(const std::string& menuName) = 0;
 		virtual bool GetMenuItemLabel(const std::string& menuName, int i, std::string& label) = 0;
 		virtual bool IsMenuItemEnabled(const std::string& menuName, int i);
-		virtual bool GetMenuItemIconPath(const std::string& menuName, std::filesystem::path& iconPath);
+		virtual bool GetMenuItemIconPath(const std::string& menuName, int i, std::filesystem::path& iconPath);
 		virtual bool GetMenuItemSubMenuName(const std::string& menuName, int i, std::string& subMenuName);
 		virtual std::shared_ptr<MenuDriver> GetSubMenuDriver(const std::string& subMenuName);
 		virtual void HandleMenuItemClick(const std::string& menuName, int i);
@@ -62,6 +62,8 @@ namespace VeryGUI
 			std::shared_ptr<GAL2D::Texture> iconTexture;
 			std::weak_ptr<MenuWindow> subMenuWindow;
 			GAL2D::Rectangle labelRect;
+			GAL2D::Rectangle iconRect;
+			GAL2D::Rectangle itemRect;
 		};
 
 		std::shared_ptr<GAL2D::Font> labelFont;
@@ -70,6 +72,7 @@ namespace VeryGUI
 		std::string menuName;
 		GAL2D::Vector anchorPoint;
 		AnchorPlacement anchorPlacement;
-		static double menuItemHeight;
+		static double labelHeight;
+		static double margin;
 	};
 }

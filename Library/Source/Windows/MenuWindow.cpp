@@ -20,7 +20,7 @@ MenuDriver::MenuDriver()
 	return true;
 }
 
-/*virtual*/ bool MenuDriver::GetMenuItemIconPath(const std::string& menuName, std::filesystem::path& iconPath)
+/*virtual*/ bool MenuDriver::GetMenuItemIconPath(const std::string& menuName, int i, std::filesystem::path& iconPath)
 {
 	return false;
 }
@@ -41,7 +41,8 @@ MenuDriver::MenuDriver()
 
 //----------------------------------- MenuWindow -----------------------------------
 
-double MenuWindow::menuItemHeight = 20.0;
+double MenuWindow::labelHeight = 20.0;
+double MenuWindow::margin = 4.0;
 
 MenuWindow::MenuWindow(const std::string& menuName, std::shared_ptr<MenuDriver> menuDriver)
 {
@@ -68,12 +69,15 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 	int numMenuItems = this->menuDriver->GetNumMenuItems(this->menuName);
 	assert(numMenuItems > 0);
 
-	double menuWidth = 0.0;
+	double maxLabelWidth = 0.0;
+	std::vector<std::string> labelArray;
 
 	for (int i = 0; i < numMenuItems; i++)
 	{
 		std::string label;
 		this->menuDriver->GetMenuItemLabel(this->menuName, i, label);
+
+		labelArray.push_back(label);
 
 		std::shared_ptr<MenuItemCache> menuItemCache;
 		auto iter = this->menuItemCacheMap.find(label);
@@ -84,62 +88,68 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 			menuItemCache = std::make_shared<MenuItemCache>();
 			menuItemCache->i = i;
 			menuItemCache->isHighlighted = false;
-			this->labelFont->CalcTextWidth(label, this->menuItemHeight, menuItemCache->labelWidth);
+			this->labelFont->CalcTextWidth(label, this->labelHeight, menuItemCache->labelWidth);
 			this->menuItemCacheMap.insert(std::pair(label, menuItemCache));
 		}
 
-		if (menuWidth < menuItemCache->labelWidth)
-			menuWidth = menuItemCache->labelWidth;
+		if (maxLabelWidth < menuItemCache->labelWidth)
+			maxLabelWidth = menuItemCache->labelWidth;
+
+		std::filesystem::path iconPath;
+		if (!this->menuDriver->GetMenuItemIconPath(this->menuName, i, iconPath))
+			menuItemCache->iconTexture.reset();
+		else
+		{
+			if (iconPath != menuItemCache->iconPath)
+			{
+				menuItemCache->iconPath = iconPath;
+				menuItemCache->iconTexture = graphics->MakeTexture(iconPath);
+			}
+		}
 	}
 
-	double menuHeight = double(numMenuItems) * this->menuItemHeight;
+	GAL2D::Rectangle localIconRect;
+	localIconRect.minCorner = GAL2D::Vector(0.0, 0.0);
+	localIconRect.maxCorner = GAL2D::Vector(this->labelHeight, this->labelHeight);
 
-	switch (this->anchorPlacement)
+	GAL2D::Rectangle localLabelRect;
+	localLabelRect.minCorner = GAL2D::Vector(this->labelHeight + this->margin, 0.0);
+	localLabelRect.maxCorner = GAL2D::Vector(this->labelHeight + this->margin + maxLabelWidth, this->labelHeight);
+
+	GAL2D::Rectangle localItemRect;
+	localItemRect.minCorner = GAL2D::Vector(0.0, 0.0);
+	localItemRect.maxCorner = GAL2D::Vector(this->labelHeight + this->margin + maxLabelWidth, this->labelHeight);
+	localItemRect.ApplyMarginDelta(this->margin);
+
+	GAL2D::Vector location = this->anchorPoint;
+
+	if (this->anchorPlacement == AnchorPlacement::UPPER_RIGHT || this->anchorPlacement == AnchorPlacement::LOWER_RIGHT)
+		location.x -= localItemRect.Width();
+
+	if (this->anchorPlacement == AnchorPlacement::LOWER_LEFT || this->anchorPlacement == AnchorPlacement::LOWER_RIGHT)
+		location.y += localItemRect.Height() * double(numMenuItems);
+
+	for (int i = 0; i < (int)labelArray.size(); i++)
 	{
-		case AnchorPlacement::LOWER_LEFT:
-		{
-			this->boundingRect.minCorner = this->anchorPoint;
-			this->boundingRect.maxCorner = this->boundingRect.minCorner + GAL2D::Vector(menuWidth, menuHeight);
-			break;
-		}
-		case AnchorPlacement::LOWER_RIGHT:
-		{
-			this->boundingRect.minCorner.x = this->anchorPoint.x - menuWidth;
-			this->boundingRect.minCorner.y = this->anchorPoint.y;
-			this->boundingRect.maxCorner.x = this->anchorPoint.x;
-			this->boundingRect.maxCorner.y = this->anchorPoint.y + menuHeight;
-			break;
-		}
-		case AnchorPlacement::UPPER_LEFT:
-		{
-			this->boundingRect.minCorner.x = this->anchorPoint.x;
-			this->boundingRect.minCorner.y = this->anchorPoint.y - menuHeight;
-			this->boundingRect.maxCorner.x = this->anchorPoint.x + menuWidth;
-			this->boundingRect.maxCorner.y = this->anchorPoint.y;
-			break;
-		}
-		case AnchorPlacement::UPPER_RIGHT:
-		{
-			this->boundingRect.minCorner = this->anchorPoint - GAL2D::Vector(menuWidth, menuHeight);
-			this->boundingRect.maxCorner = this->anchorPoint;
-			break;
-		}
+		const std::string& label = labelArray[i];
+		auto pair = this->menuItemCacheMap.find(label);
+		std::shared_ptr<MenuItemCache> menuItemCache = pair->second;
+
+		GAL2D::Vector delta = localItemRect.GetTranslation(location, GAL2D::Rectangle::Corner::UPPER_LEFT);
+
+		menuItemCache->itemRect = localItemRect + delta;
+		menuItemCache->labelRect = localLabelRect + delta;
+		menuItemCache->iconRect = localIconRect + delta;
+
+		location.y -= localItemRect.Height();
 	}
 
+	this->boundingRect.PrepareForExpansion();
 	for (auto pair : this->menuItemCacheMap)
 	{
-		const std::string& label = pair.first;
 		std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
-
-		int j = (int)numMenuItems - 1 - menuItemCache->i;
-
-		menuItemCache->labelRect.minCorner.x = this->boundingRect.minCorner.x;
-		menuItemCache->labelRect.maxCorner.x = this->boundingRect.maxCorner.x;
-		menuItemCache->labelRect.minCorner.y = this->boundingRect.minCorner.y + double(j) * menuItemHeight;
-		menuItemCache->labelRect.maxCorner.y = menuItemCache->labelRect.minCorner.y + menuItemHeight;
+		this->boundingRect.MinimallyExpandToIncludeRect(menuItemCache->itemRect);
 	}
-
-	this->boundingRect.ApplyMarginDelta(4.0);
 
 	Window::LayoutChildren(graphics);
 }
@@ -157,7 +167,10 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 		std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
 
 		if (menuItemCache->isHighlighted)
-			graphics->RenderRectangle(menuItemCache->labelRect, GAL2D::Color(0.8, 0.8, 0.8, 1.0));
+			graphics->RenderRectangle(menuItemCache->itemRect, GAL2D::Color(0.8, 0.8, 0.8, 1.0));
+
+		if (menuItemCache->iconTexture.get())
+			graphics->RenderRectangle(menuItemCache->iconRect, GAL2D::Color(1.0, 1.0, 1.0, 1.0), menuItemCache->iconTexture);
 
 		graphics->RenderText(label, this->labelFont, menuItemCache->labelRect, GAL2D::Color(0.0, 0.0, 0.0, 1.0), GAL2D::GraphicsInterface::ALIGN_LEFT);
 	}
@@ -181,7 +194,7 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 			for (auto pair : this->menuItemCacheMap)
 			{
 				std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
-				menuItemCache->isHighlighted = menuItemCache->labelRect.ContainsPoint(event->mousePosition);
+				menuItemCache->isHighlighted = menuItemCache->itemRect.ContainsPoint(event->mousePosition);
 				if (menuItemCache->isHighlighted)
 				{
 					std::string subMenuName;
@@ -219,7 +232,7 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 				for (auto pair : this->menuItemCacheMap)
 				{
 					std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
-					if (menuItemCache->labelRect.ContainsPoint(event->mousePosition))
+					if (menuItemCache->itemRect.ContainsPoint(event->mousePosition))
 					{
 						const std::string& label = pair.first;
 						

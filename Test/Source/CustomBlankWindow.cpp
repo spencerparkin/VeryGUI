@@ -137,8 +137,27 @@ CustomBlankWindow::ContextMenuDriver::ContextMenuDriver()
 	return false;
 }
 
-/*virtual*/ bool CustomBlankWindow::ContextMenuDriver::GetMenuItemIconPath(const std::string& menuName, std::filesystem::path& iconPath)
+/*virtual*/ bool CustomBlankWindow::ContextMenuDriver::GetMenuItemIconPath(const std::string& menuName, int i, std::filesystem::path& iconPath)
 {
+	if (menuName == "menuB")
+	{
+		switch (i)
+		{
+		case 0:
+			iconPath = "images/mushroom.png";
+			return true;
+		case 1:
+			iconPath = "images/tulip.png";
+			return true;
+		case 2:
+			iconPath = "images/leaf.png";
+			return true;
+		case 3:
+			iconPath = "images/sunflower.png";
+			return true;
+		}
+	}
+
 	return false;
 }
 
