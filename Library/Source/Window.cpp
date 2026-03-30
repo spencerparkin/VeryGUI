@@ -129,3 +129,13 @@ std::shared_ptr<Window> Window::GetRootWindow()
 	if (parentWindow.get())
 		parentWindow->HandleEvent(eventType, eventData);
 }
+
+/*virtual*/ double Window::GetDesiredWidth()
+{
+	return 0.0;
+}
+
+/*virtual*/ double Window::GetDesiredHeight()
+{
+	return 0.0;
+}

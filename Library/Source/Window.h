@@ -75,6 +75,9 @@ namespace VeryGUI
 		 */
 		virtual bool CanExceedParentBounds() const;
 
+		virtual double GetDesiredWidth();
+		virtual double GetDesiredHeight();
+
 		bool AddChildWindow(std::shared_ptr<Window> childWindow);
 		bool RemoveChildWindow(std::shared_ptr<Window> childWindow);
 		bool HasChildWindow(std::shared_ptr<Window> childWindow, int* offset = nullptr) const;

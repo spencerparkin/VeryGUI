@@ -13,6 +13,10 @@ set(VERY_GUI_SOURCES
 	Source/Windows/SplitterWindow.h
 	Source/Windows/MenuWindow.cpp
 	Source/Windows/MenuWindow.h
+	Source/Windows/MenuBarWindow.cpp
+	Source/Windows/MenuBarWindow.h
+	Source/Windows/HVBoxWindow.cpp
+	Source/Windows/HVBoxWindow.h
 )
 
 add_library(VeryGUI STATIC ${VERY_GUI_SOURCES})
