@@ -36,6 +36,8 @@ namespace VeryGUI
 
 	protected:
 
+		void CalcLayout(std::vector<double>& lengthArray);
+
 		virtual double GetChildWindowDesiredLength(int i) = 0;
 		virtual double GetTotalLengthAvailable() = 0;
 

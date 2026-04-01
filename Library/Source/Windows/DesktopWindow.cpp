@@ -73,8 +73,10 @@ bool DesktopWindow::Run()
 	{
 		this->SetBoundingRectangle(graphicsInterface->renderState.worldRegion);
 
+		// Should probably not be calculating layout constantly, but only when needed.
 		this->LayoutChildren(this->graphicsInterface.get());
 
+		// A better system wouldn't be constantly rendering, but only when and where needed.
 		graphicsInterface->BeginRendering();
 		this->Draw(this->graphicsInterface.get());
 		graphicsInterface->EndRendering();
