@@ -46,7 +46,9 @@ void HVBoxWindow::CalcLayout(std::vector<double>& lengthArray)
 			}
 			case SizeConstraint::FIT_TO_CONTENT:
 			{
-				minimumLengthNeeded += this->GetChildWindowDesiredLength(i);
+				double desiredLength = this->GetChildWindowDesiredLength(i);
+				assert(desiredLength != 0.0);
+				minimumLengthNeeded += desiredLength;
 				break;
 			}
 			case SizeConstraint::PROPORTIONAL:
