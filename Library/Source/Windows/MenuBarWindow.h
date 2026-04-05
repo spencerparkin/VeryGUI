@@ -20,8 +20,22 @@ namespace VeryGUI
 		virtual double GetDesiredHeight() override;
 
 	private:
+
+		struct MenuItemCache
+		{
+			int i;
+			bool isHighlighted;
+			double labelWidth;
+			std::weak_ptr<MenuWindow> subMenuWindow;
+			GAL2D::Rectangle labelRect;
+			GAL2D::Rectangle itemRect;
+		};
+
+		std::unordered_map<std::string, std::shared_ptr<MenuItemCache>> menuItemCacheMap;
 		std::shared_ptr<GAL2D::Font> labelFont;
 		std::shared_ptr<MenuDriver> menuDriver;
 		std::string menuName;
+		static double labelHeight;
+		static double margin;
 	};
 }
