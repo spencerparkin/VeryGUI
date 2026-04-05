@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Window.h"
+#include "MenuWindow.h"
 
 namespace VeryGUI
 {
@@ -10,9 +10,18 @@ namespace VeryGUI
 	class MenuBarWindow : public Window
 	{
 	public:
-		MenuBarWindow();
+		MenuBarWindow(const std::string& menuName, std::shared_ptr<MenuDriver> menuDriver);
 		virtual ~MenuBarWindow();
 
-		// STPTODO: Could probably take same menu driver class used by MenuWindow.
+		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics) override;
+		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
+		virtual void HandleEvent(EventType eventType, const void* eventData) override;
+		virtual bool CanExceedParentBounds() const override;
+		virtual double GetDesiredHeight() override;
+
+	private:
+		std::shared_ptr<GAL2D::Font> labelFont;
+		std::shared_ptr<MenuDriver> menuDriver;
+		std::string menuName;
 	};
 }

@@ -170,7 +170,7 @@ VBoxWindow::VBoxWindow()
 		GAL2D::Rectangle childRect(this->boundingRect.Width(), lengthArray[i]);
 		childRect += childRect.GetTranslation(location, GAL2D::Rectangle::Corner::UPPER_LEFT);
 		childWindow->SetBoundingRectangle(childRect);
-		location.y += lengthArray[i];
+		location.y -= lengthArray[i];
 	}
 
 	Window::LayoutChildren(graphics);
