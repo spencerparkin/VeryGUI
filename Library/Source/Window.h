@@ -47,6 +47,12 @@ namespace VeryGUI
 		 */
 		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics);
 
+		enum DrawOrder
+		{
+			DEPTH_FIRST,
+			DEPTH_LAST
+		};
+
 		/**
 		 * This should be overridden if the window renders anything.  It should draw
 		 * only within its bounding rectangle.  Anything drawn outside that rectangle
@@ -56,8 +62,9 @@ namespace VeryGUI
 		 * drawing everything back to front.
 		 * 
 		 * @param[in] graphics This is provided for drawing the window and its contents.
+		 * @return Indicate whether this window's children should draw before or after its siblings.
 		 */
-		virtual void Draw(GAL2D::GraphicsInterface* graphics);
+		virtual DrawOrder Draw(GAL2D::GraphicsInterface* graphics);
 
 		/**
 		 * Override this method to handle events that occur in the window.
@@ -88,6 +95,30 @@ namespace VeryGUI
 		std::shared_ptr<Window> FindDeepestWindowContainingPoint(const GAL2D::Vector& point);
 		std::shared_ptr<Window> GetParentWindow();
 		std::shared_ptr<Window> GetRootWindow();
+
+		void RenderWindowTree(GAL2D::GraphicsInterface* graphics);
+
+		/**
+		 * Perform a breadth-first traversal of the window hierarchy starting at this window.
+		 * 
+		 * @param[in,out] visitationFunc This is called per window in the hierarchy.  Return false to terminate the traversal prematurely.
+		 * @return True is returned if the traversal ran to completion.
+		 */
+		bool BreadthFirstTraversal(std::function<bool(Window*)> visitationFunc);
+
+		enum DFTMode
+		{
+			CallBeforeRecursing,
+			CallAfterRecursing
+		};
+
+		/**
+		 * Perform a depth-first traversal of the window hierarchy starting at this window.
+		 * 
+		 * @param[in,out] visitationFunc This is called per window in the hierarchy.  Return false to terminate the traversal permaturely.
+		 * @param True is returned if the traversal ran to completion.
+		 */
+		bool DepthFirstTraversal(std::function<bool(Window*)> visitationFunc, DFTMode mode);
 
 	protected:
 		

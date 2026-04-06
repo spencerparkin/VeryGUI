@@ -1,4 +1,5 @@
 #include "MenuWindow.h"
+#include "MenuBarWindow.h"
 #include "Graphics/Font.h"
 #include <assert.h>
 #include <unordered_set>
@@ -154,7 +155,7 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 	Window::LayoutChildren(graphics);
 }
 
-/*virtual*/ void MenuWindow::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ Window::DrawOrder MenuWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	GAL2D::Rectangle shadowRect = this->boundingRect + GAL2D::Vector(4.0, -4.0);
 	graphics->RenderRectangle(shadowRect, GAL2D::Color(0.0, 0.0, 0.0, 0.3));
@@ -175,7 +176,7 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 		graphics->RenderText(label, this->labelFont, menuItemCache->labelRect, GAL2D::Color(0.0, 0.0, 0.0, 1.0), GAL2D::GraphicsInterface::ALIGN_LEFT);
 	}
 
-	Window::Draw(graphics);
+	return DrawOrder::DEPTH_LAST;
 }
 
 /*virtual*/ bool MenuWindow::CanExceedParentBounds() const
@@ -246,6 +247,11 @@ void MenuWindow::SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anc
 							parentWindow = parentWindow->GetParentWindow();
 						}
 						parentWindow->RemoveChildWindow(childWindow);
+
+						auto menuBarWindow = dynamic_cast<MenuBarWindow*>(parentWindow.get());
+						if (menuBarWindow)
+							menuBarWindow->DisableAutoPopup();
+
 						break;
 					}
 				}

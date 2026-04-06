@@ -17,7 +17,7 @@ BlankWindow::BlankWindow(const GAL2D::Color& color)
 {
 }
 
-/*virtual*/ void BlankWindow::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ Window::DrawOrder BlankWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	if (!this->backgroundImagePath.empty() && !this->backgroundTexture.get())
 	{
@@ -28,5 +28,5 @@ BlankWindow::BlankWindow(const GAL2D::Color& color)
 	// STPTODO: Adjust rect here to preserve aspect ratio of texture.  But you'll also need to enable clipping.
 	graphics->RenderRectangle(this->boundingRect, this->color, this->backgroundTexture);
 
-	Window::Draw(graphics);
+	return DrawOrder::DEPTH_LAST;
 }

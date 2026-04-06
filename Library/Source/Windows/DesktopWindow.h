@@ -18,7 +18,7 @@ namespace VeryGUI
 
 		bool Run();
 
-		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
+		virtual DrawOrder Draw(GAL2D::GraphicsInterface* graphics) override;
 
 		void SetMouseCaptureWindow(Window* window);
 		bool BringWindowToFront(Window* window);

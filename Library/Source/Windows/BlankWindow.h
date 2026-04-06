@@ -14,7 +14,7 @@ namespace VeryGUI
 		BlankWindow(const GAL2D::Color& color);
 		virtual ~BlankWindow();
 
-		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
+		virtual DrawOrder Draw(GAL2D::GraphicsInterface* graphics) override;
 
 	private:
 		GAL2D::Color color;

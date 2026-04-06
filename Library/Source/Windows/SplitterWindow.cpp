@@ -21,7 +21,9 @@ SplitterWindow::SplitterWindow(Orientation orientation)
 	// STPTODO: Write this.
 }
 
-/*virtual*/ void SplitterWindow::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ Window::DrawOrder SplitterWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	// STPTODO: Write this.
+
+	return DrawOrder::DEPTH_LAST;
 }

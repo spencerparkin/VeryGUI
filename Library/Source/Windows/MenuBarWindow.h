@@ -14,12 +14,16 @@ namespace VeryGUI
 		virtual ~MenuBarWindow();
 
 		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics) override;
-		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
+		virtual DrawOrder Draw(GAL2D::GraphicsInterface* graphics) override;
 		virtual void HandleEvent(EventType eventType, const void* eventData) override;
 		virtual bool CanExceedParentBounds() const override;
 		virtual double GetDesiredHeight() override;
 
+		void DisableAutoPopup();
+
 	private:
+
+		void ManagePopupMenus(const GAL2D::Vector& mousePosition);
 
 		struct MenuItemCache
 		{
@@ -35,6 +39,7 @@ namespace VeryGUI
 		std::shared_ptr<GAL2D::Font> labelFont;
 		std::shared_ptr<MenuDriver> menuDriver;
 		std::string menuName;
+		bool popupMenus;
 		static double labelHeight;
 		static double margin;
 	};

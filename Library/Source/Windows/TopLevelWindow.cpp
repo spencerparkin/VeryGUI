@@ -41,7 +41,7 @@ TopLevelWindow::TopLevelWindow()
 	Window::LayoutChildren(graphics);
 }
 
-/*virtual*/ void TopLevelWindow::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ Window::DrawOrder TopLevelWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	BorderRects borderRects;
 	this->CalcBorderRects(borderRects);
@@ -65,7 +65,7 @@ TopLevelWindow::TopLevelWindow()
 	textRect.ApplyMarginDelta(-2.0);
 	graphics->RenderText(this->title, this->titleFont, textRect, GAL2D::Color(1.0, 1.0, 1.0, 1.0), GAL2D::GraphicsInterface::ALIGN_LEFT);
 
-	Window::Draw(graphics);
+	return DrawOrder::DEPTH_FIRST;
 }
 
 void TopLevelWindow::CalcBorderRects(BorderRects& borderRects)

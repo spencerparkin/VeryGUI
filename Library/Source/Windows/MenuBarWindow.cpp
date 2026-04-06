@@ -11,6 +11,7 @@ MenuBarWindow::MenuBarWindow(const std::string& menuName, std::shared_ptr<MenuDr
 {
 	this->menuName = menuName;
 	this->menuDriver = menuDriver;
+	this->popupMenus = false;
 }
 
 /*virtual*/ MenuBarWindow::~MenuBarWindow()
@@ -59,7 +60,7 @@ MenuBarWindow::MenuBarWindow(const std::string& menuName, std::shared_ptr<MenuDr
 	Window::LayoutChildren(graphics);
 }
 
-/*virtual*/ void MenuBarWindow::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ Window::DrawOrder MenuBarWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	graphics->RenderRectangle(this->boundingRect, GAL2D::Color(0.5, 0.5, 0.5, 1.0));
 
@@ -74,7 +75,7 @@ MenuBarWindow::MenuBarWindow(const std::string& menuName, std::shared_ptr<MenuDr
 		graphics->RenderText(label, this->labelFont, menuItemCache->labelRect, GAL2D::Color(0.0, 0.0, 0.0, 1.0), GAL2D::GraphicsInterface::ALIGN_LEFT);
 	}
 
-	Window::Draw(graphics);
+	return DrawOrder::DEPTH_LAST;
 }
 
 /*virtual*/ void MenuBarWindow::HandleEvent(EventType eventType, const void* eventData)
@@ -85,11 +86,7 @@ MenuBarWindow::MenuBarWindow(const std::string& menuName, std::shared_ptr<MenuDr
 		{
 			auto event = static_cast<const MouseMotionEvent*>(eventData);
 
-			for (auto pair : this->menuItemCacheMap)
-			{
-				std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
-				menuItemCache->isHighlighted = menuItemCache->itemRect.ContainsPoint(event->mousePosition);
-			}
+			this->ManagePopupMenus(event->mousePosition);
 
 			break;
 		}
@@ -99,36 +96,45 @@ MenuBarWindow::MenuBarWindow(const std::string& menuName, std::shared_ptr<MenuDr
 
 			if (event->mouseButton == GAL2D::MouseButton::Left && event->buttonState == GAL2D::ButtonState::Down)
 			{
-				for (auto pair : this->menuItemCacheMap)
-				{
-					std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
-					if (menuItemCache->itemRect.ContainsPoint(event->mousePosition))
-					{
-						const std::string& label = pair.first;
+				this->popupMenus = !this->popupMenus;
 
-						this->menuDriver->HandleMenuItemClick(this->menuName, menuItemCache->i);
-
-						std::string subMenuName;
-						if (this->menuDriver->GetMenuItemSubMenuName(this->menuName, menuItemCache->i, subMenuName))
-						{
-							if (menuItemCache->subMenuWindow.expired())
-							{
-								std::shared_ptr<MenuDriver> subMenuDriver = this->menuDriver->GetSubMenuDriver(subMenuName);
-								assert(subMenuDriver.get());
-								std::shared_ptr<MenuWindow> subMenuWindow = std::make_shared<MenuWindow>(subMenuName, subMenuDriver);
-								GAL2D::Vector anchorPoint = menuItemCache->itemRect.GetCorner(GAL2D::Rectangle::Corner::LOWER_LEFT);
-								subMenuWindow->SetAnchor(anchorPoint, MenuWindow::AnchorPlacement::UPPER_LEFT);
-								this->AddChildWindow(subMenuWindow);
-								menuItemCache->subMenuWindow = subMenuWindow;
-							}
-						}
-
-						break;
-					}
-				}
+				this->ManagePopupMenus(event->mousePosition);
 			}
 
 			break;
+		}
+	}
+}
+
+void MenuBarWindow::ManagePopupMenus(const GAL2D::Vector& mousePosition)
+{
+	for (auto pair : this->menuItemCacheMap)
+	{
+		std::shared_ptr<MenuItemCache> menuItemCache = pair.second;
+		menuItemCache->isHighlighted = menuItemCache->itemRect.ContainsPoint(mousePosition);
+
+		if (this->popupMenus && menuItemCache->isHighlighted)
+		{
+			if (menuItemCache->subMenuWindow.expired())
+			{
+				std::string subMenuName;
+				if (this->menuDriver->GetMenuItemSubMenuName(this->menuName, menuItemCache->i, subMenuName))
+				{
+					std::shared_ptr<MenuDriver> subMenuDriver = this->menuDriver->GetSubMenuDriver(subMenuName);
+					assert(subMenuDriver.get());
+					std::shared_ptr<MenuWindow> subMenuWindow = std::make_shared<MenuWindow>(subMenuName, subMenuDriver);
+					GAL2D::Vector anchorPoint = menuItemCache->itemRect.GetCorner(GAL2D::Rectangle::Corner::LOWER_LEFT);
+					subMenuWindow->SetAnchor(anchorPoint, MenuWindow::AnchorPlacement::UPPER_LEFT);
+					this->AddChildWindow(subMenuWindow);
+					menuItemCache->subMenuWindow = subMenuWindow;
+				}
+			}
+		}
+		else if (!this->popupMenus || !menuItemCache->isHighlighted)
+		{
+			std::shared_ptr<Window> subMenuWindow = menuItemCache->subMenuWindow.lock();
+			if (subMenuWindow.get())
+				this->RemoveChildWindow(subMenuWindow);
 		}
 	}
 }
@@ -141,4 +147,9 @@ MenuBarWindow::MenuBarWindow(const std::string& menuName, std::shared_ptr<MenuDr
 /*virtual*/ double MenuBarWindow::GetDesiredHeight()
 {
 	return 30.0;
+}
+
+void MenuBarWindow::DisableAutoPopup()
+{
+	this->popupMenus = false;
 }

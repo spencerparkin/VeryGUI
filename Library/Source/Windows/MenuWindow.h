@@ -47,7 +47,7 @@ namespace VeryGUI
 		void SetAnchor(const GAL2D::Vector& anchorPoint, AnchorPlacement anchorPlacement);
 
 		virtual void LayoutChildren(GAL2D::GraphicsInterface* graphics) override;
-		virtual void Draw(GAL2D::GraphicsInterface* graphics) override;
+		virtual DrawOrder Draw(GAL2D::GraphicsInterface* graphics) override;
 		virtual void HandleEvent(EventType eventType, const void* eventData) override;
 		virtual bool CanExceedParentBounds() const override;
 

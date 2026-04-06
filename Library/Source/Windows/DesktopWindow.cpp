@@ -66,6 +66,8 @@ bool DesktopWindow::Run()
 				std::shared_ptr<Window> window = this->FindDeepestWindowContainingPoint(mousePosition);
 				if (window.get())
 					window->HandleEvent(EventType::MOUSE_MOTION, &event);
+
+				// STPTODO: Add mouse-enter and mouse-leave events?
 			}
 		};
 
@@ -77,19 +79,19 @@ bool DesktopWindow::Run()
 		this->LayoutChildren(this->graphicsInterface.get());
 
 		// A better system wouldn't be constantly rendering, but only when and where needed.
-		graphicsInterface->BeginRendering();
-		this->Draw(this->graphicsInterface.get());
-		graphicsInterface->EndRendering();
+		this->graphicsInterface->BeginRendering();
+		this->RenderWindowTree(this->graphicsInterface.get());
+		this->graphicsInterface->EndRendering();
 	}
 
 	this->childWindowArray.clear();
 
-	graphicsInterface->Shutdown();
+	this->graphicsInterface->Shutdown();
 
 	return true;
 }
 
-/*virtual*/ void DesktopWindow::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ Window::DrawOrder DesktopWindow::Draw(GAL2D::GraphicsInterface* graphics)
 {
 	GAL2D::Rectangle backgroundRect = this->boundingRect;
 
@@ -101,7 +103,7 @@ bool DesktopWindow::Run()
 
 	graphics->RenderRectangle(backgroundRect, GAL2D::Color(0.5, 0.5, 0.5, 1.0), this->backgroundTexture);
 
-	Window::Draw(graphics);
+	return DrawOrder::DEPTH_LAST;
 }
 
 void DesktopWindow::SetMouseCaptureWindow(Window* window)

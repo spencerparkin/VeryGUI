@@ -16,10 +16,9 @@ Window::Window()
 		childWindow->LayoutChildren(graphics);
 }
 
-/*virtual*/ void Window::Draw(GAL2D::GraphicsInterface* graphics)
+/*virtual*/ Window::DrawOrder Window::Draw(GAL2D::GraphicsInterface* graphics)
 {
-	for (const std::shared_ptr<Window> childWindow : this->childWindowArray)
-		childWindow->Draw(graphics);
+	return DrawOrder::DEPTH_LAST;
 }
 
 /*virtual*/ bool Window::CanExceedParentBounds() const
@@ -138,4 +137,71 @@ std::shared_ptr<Window> Window::GetRootWindow()
 /*virtual*/ double Window::GetDesiredHeight()
 {
 	return 0.0;
+}
+
+void Window::RenderWindowTree(GAL2D::GraphicsInterface* graphics)
+{
+	std::list<std::shared_ptr<Window>> windowQueue;
+	windowQueue.push_back(this->shared_from_this());
+
+	while (windowQueue.size() > 0)
+	{
+		std::shared_ptr<Window> window = *windowQueue.begin();
+		windowQueue.pop_front();
+
+		DrawOrder drawOrder = window->Draw(graphics);
+
+		switch (drawOrder)
+		{
+			case DrawOrder::DEPTH_FIRST:
+			{
+				for (std::shared_ptr<Window> childWindow : window->childWindowArray)
+					childWindow->RenderWindowTree(graphics);
+
+				break;
+			}
+			case DrawOrder::DEPTH_LAST:
+			{
+				for (std::shared_ptr<Window> childWindow : window->childWindowArray)
+					windowQueue.push_back(childWindow);
+
+				break;
+			}
+		}
+	}
+}
+
+bool Window::BreadthFirstTraversal(std::function<bool(Window*)> visitationFunc)
+{
+	std::list<std::shared_ptr<Window>> windowQueue;
+	windowQueue.push_back(this->shared_from_this());
+
+	while (windowQueue.size() > 0)
+	{
+		std::shared_ptr<Window> window = *windowQueue.begin();
+		windowQueue.pop_front();
+
+		if (!visitationFunc(window.get()))
+			return false;
+
+		for (std::shared_ptr<Window> childWindow : window->childWindowArray)
+			windowQueue.push_back(childWindow);
+	}
+
+	return true;
+}
+
+bool Window::DepthFirstTraversal(std::function<bool(Window*)> visitationFunc, DFTMode mode)
+{
+	if (mode == DFTMode::CallBeforeRecursing && !visitationFunc(this))
+		return false;
+	
+	for (std::shared_ptr<Window> childWindow : this->childWindowArray)
+		if (!childWindow->DepthFirstTraversal(visitationFunc, mode))
+			return false;
+
+	if (mode == DFTMode::CallAfterRecursing && !visitationFunc(this))
+		return false;
+
+	return true;
 }
